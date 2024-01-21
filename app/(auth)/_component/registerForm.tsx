@@ -3,12 +3,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-
+import Logo from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -54,7 +53,10 @@ export function SignUpForm() {
 
   return (
     <div className="flex flex-col gap-5 border-2 lg:w-1/3 md:w-3/4 lg:p-10 w-full md:p-5 p-5">
-      <h2 className="font-semibold text-center">Sign Up to ravenBugpro</h2>
+      <div className="flex flex-col items-center">
+        <Logo />
+        <h2 className="font-semibold text-center">Sign Up</h2>
+      </div>
 
       <Form {...form}>
         <form
@@ -107,7 +109,10 @@ export function SignUpForm() {
       </Form>
       <Separator />
       <p className="text-sm">
-        Already have an account ? <Link href="/sign-In" className="hover:text-purple-700">Sign In</Link>
+        Already have an account ?{" "}
+        <Link href="/sign-in" className="hover:text-purple-700">
+          Sign In
+        </Link>
       </p>
       <Button variant="secondary">Sign up with Google</Button>
       <Button variant="secondary">Sign up with Github</Button>

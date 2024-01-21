@@ -3,12 +3,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-
+import Logo from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -45,8 +44,10 @@ export function SignInForm() {
 
   return (
     <div className="flex flex-col gap-5 border-2 lg:w-1/3 md:w-3/4 w-full lg:p-10 md:p-10 p-5">
-      <h2 className="font-semibold text-center">Sign in to ravenBugpro</h2>
-
+      <div className="flex items-center flex-col gap-5">
+        <Logo />
+        <h2 className="font-semibold text-center">Sign in</h2>
+      </div>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
