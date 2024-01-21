@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import React from "react";
-import Logo from "./logo";
+import Logo from '@/components/logo'
 import Link from "next/link";
 const Navbar = () => {
   return (
@@ -25,10 +25,10 @@ const Navbar = () => {
       </ul>
       <div className="flex gap-3">
         <Button variant="secondary" asChild>
-          <Link href="/">Sign In</Link>
+          <Link href="/sign-in">Sign In</Link>
         </Button>
         <Button variant="default" asChild>
-          <Link href="/">Sign Up</Link>
+          <Link href="/sign-up">Sign Up</Link>
         </Button>
       </div>
     </div>
