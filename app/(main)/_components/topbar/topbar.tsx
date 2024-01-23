@@ -3,7 +3,7 @@ import { MenuSquare, PlusSquare } from "lucide-react";
 import NotificationBell from "./notificationBell";
 import Logo from "@/components/logo";
 import ProfileAvatar from "@/components/profileAvatar";
-import OrgCombobox from "../organisationCombo";
+import OrgCombobox from "./organisationCombo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 const Navbar = () => {
