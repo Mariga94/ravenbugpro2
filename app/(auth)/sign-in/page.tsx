@@ -1,4 +1,6 @@
 import React from "react";
+import dynamic from 'next/dynamic';
+
 import { SignInForm } from "../_component/loginForm";
 const SignInPage = () => {
   return (
