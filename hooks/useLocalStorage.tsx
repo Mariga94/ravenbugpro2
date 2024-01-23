@@ -2,7 +2,8 @@
 import { useEffect, useState } from "react";
 
 function useLocalStorage<T>(key: string, defaultValue: T) {
-  const storedValue = localStorage.getItem(key);
+  const storedValue =
+    typeof window !== "undefined" ? window.localStorage.getItem(key) : false;
   let initial;
   try {
     initial = storedValue ? JSON.parse(storedValue) : defaultValue;
