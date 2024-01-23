@@ -17,7 +17,7 @@ export default function DashboardLayout({
     <html lang="en">
       <body className={`${inter.className} `}>
         <Navbar />
-        <div className="flex flex-row">
+        <div className="flex flex-row ">
           <Sidebar />
           <div className="p-5 ">{children}</div>
         </div>

@@ -1,9 +1,11 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
+  Check,
+  ChevronsUpDown,
   ChevronLeft,
   ChevronUp,
   ChevronDown,
@@ -14,6 +16,20 @@ import {
   Users,
   Goal,
 } from "lucide-react";
+
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command";
+
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
 
 export const sideItems = [
   {
@@ -54,7 +70,7 @@ const workspaces = [
     workspaceName: "SpaceX",
     goals: [],
     projects: [],
-    Teams: [],
+    teams: [],
     settings: [],
   },
   {
@@ -62,111 +78,164 @@ const workspaces = [
     workspaceName: "Facebook",
     goals: [],
     projects: [],
-    Teams: [],
+    teams: [],
     settings: [],
   },
 ];
 
-const STORAGE_KEY = "workspace-expanded";
+interface IWorkspace {
+  _id: string;
+  workspaceName: string;
+  goals?: string[];
+  projects?: string[];
+  teams?: string[];
+  settings?: string[];
+}
+const WORKSPACE_KEY = "workspace-selected";
 const Sidebar = () => {
+  const [open, setOpen] = React.useState<boolean>(false);
+  const [value, setValue] = useLocalStorage<string>(WORKSPACE_KEY, "");
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
-  const [isWorkspaceCollapsed, setIsWorkspaceCollapsed] =
-    useState<boolean>(false);
-  const [selectedTabs, setSelectedTabs] = useLocalStorage<string[]>(
-    STORAGE_KEY,
-    []
-  );
+  const [workspace, setWorkspace] = useState<IWorkspace | null>(null);
+  const [isClient, setIsClient] = useState<boolean>(false);
 
-  const handleTabClick = (workpaceId: string) => {
-    setSelectedTabs((prev) => {
-      if (prev.includes(workpaceId)) {
-        return prev.filter((space) => space !== workpaceId);
-      } else {
-        return [...prev, workpaceId];
-      }
-    });
-  };
-
-  // Effect to save selectedTabs to localStorage when it changes
   useEffect(() => {
-    try {
-      localStorage.setItem("selectedTabs", JSON.stringify(selectedTabs));
-    } catch (error) {
-      console.error("Error saving to localStorage", error);
-    }
-  }, [selectedTabs]);
-
-  //Effect to load selectedTabs from localStorage on component mount
-  useEffect(() => {
-    try {
-      const storedTabs = localStorage.getItem("selectedTabs");
-      if (storedTabs) {
-        setSelectedTabs(JSON.parse(storedTabs));
-      }
-    } catch (err) {
-      console.error("Error loading from localStorage", err);
-    }
+    setIsClient(true); // Set isClient to true on the client side
   }, []);
 
-  const toggleSidebar = (event: React.MouseEvent) => {
+  useEffect(() => {
+    // Fetch workspace from workspaces array based on the value from local storage
+    const fetchedWorkspace = workspaces.find((obj) => obj._id === value);
+    if (fetchedWorkspace !== undefined) {
+      setWorkspace(fetchedWorkspace);
+    }
+  }, [value]);
+
+  const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
 
-  const toggleWorkspace = (workspaceId: string) => {
-    setIsWorkspaceCollapsed(!isWorkspaceCollapsed);
-  };
-
   return (
-    <aside className="">
-      <div
-        className={cn(
-          "h-screen bg-secondary relative overflow-y-auto flex flex-col gap-y-2 w-60 transform transition-all ease-in-out ",
-          isCollapsed && "w-5"
-        )}
-      >
-        <div className="border-b-2 h-20 flex flex-col justify-center px-5">
-          <h2 className="font-semibold">Current Workspace</h2>
-        </div>
-        {isCollapsed ? (
-          <Button
-            variant="ghost"
-            className={cn(
-              "absolute top-4 -right-4  flex items-center justify-center z-50"
-            )}
-            onClick={toggleSidebar}
-          >
-            <ChevronRightCircle />
-          </Button>
-        ) : (
-          <Button
-            variant="ghost"
-            className={cn("absolute top-5 right-2 hover:bg-gray-300 z-[99]")}
-            onClick={toggleSidebar}
-          >
-            <ChevronLeft />
-          </Button>
-        )}
+    <aside
+      className={cn(
+        "h-[100svh] bg-secondary relative flex flex-col gap-y-2 w-60 transform transition-all ease-in-out ",
+        isCollapsed && "w-3"
+      )}
+    >
+      <div className={cn(" h-20 flex flex-col justify-center px-5")}>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className={cn(
+                "w-[200px] justify-between ",
+                isCollapsed && "hidden"
+              )}
+            >
+              {isClient && value
+                ? workspace?.workspaceName
+                : "Select workspace..."}
 
-        <div className="px-10 flex flex-col space-y-6">
-          {workspaces.map((space) => {
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="">
+            <Command>
+              <CommandEmpty>No workspace found.</CommandEmpty>
+              <CommandGroup>
+                {workspaces.map((workspace: any) => (
+                  <CommandItem
+                    key={workspace._id}
+                    value={workspace._id}
+                    onSelect={(currentValue) => {
+                      setValue(currentValue === value ? "" : currentValue);
+                      setOpen(false);
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        value === workspace.value ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {workspace.workspaceName}
+                  </CommandItem>
+                ))}
+                <Separator />
+                <CommandItem onClick={() => alert("create workspace")}>
+                  Create Workspace
+                </CommandItem>
+                <CommandItem>Manage Workspace</CommandItem>
+              </CommandGroup>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </div>
+
+      <div className="absolute top-5 -right-3">
+        {isCollapsed ? (
+          <ChevronRightCircle
+            className="bg-gray-100 hover:bg-primary hover:text-white rounded-full"
+            role="button"
+            onClick={toggleSidebar}
+          />
+        ) : (
+          <ChevronLeft
+            className="bg-gray-100 hover:bg-primary hover:text-white rounded-full"
+            role="button"
+            onClick={toggleSidebar}
+          />
+        )}
+      </div>
+      <Separator />
+      {workspace && (
+        <div key={workspace._id} className={cn(isCollapsed && 'hidden')}>
+          {
+            <ul className={cn("flex flex-col space-y-8 px-5 ")}>
+              {sideItems.map((item) => {
+                return (
+                  <li
+                    key={item.label}
+                    className="cursor-pointer px-5 flex flex-row items-center gap-x-2 hover:bg-gray-200 p-2 hover:rounded-md"
+                  >
+                    {item.icon}
+                    <p>{item.label}</p>
+                  </li>
+                );
+              })}
+            </ul>
+          }
+        </div>
+      )}
+    </aside>
+  );
+};
+
+export default Sidebar;
+
+{
+  /* <div className="px-10 flex flex-col workspace-y-6">
+          {workspaces.map((workspace) => {
             return (
-              <div key={space._id} className="space-y-6">
+              <div key={workspace._id} className="workspace-y-6">
                 <h3
                   className={cn("font-semibold flex flex-row justify-between")}
-                  onClick={() => handleTabClick(space._id)}
+                  onClick={() => handleTabClick(workspace._id)}
                 >
-                  {space.workspaceName}
-                  {selectedTabs.includes(space._id) ? (
+                  {workspace.workspaceName}
+                  {selectedTabs.includes(workspace._id) ? (
                     <ChevronDown />
                   ) : (
                     <ChevronUp />
                   )}
                 </h3>
-                {selectedTabs.includes(space._id) && (
+                {selectedTabs.includes(workspace._id) && (
                   <ul
                     className={cn(
                       "flex flex-col transform transition-all ease-in-out origin-top scale-0",
-                      selectedTabs.includes(space._id) && "scale-100"
+                      selectedTabs.includes(workspace._id) && "scale-100"
                     )}
                   >
                     {sideItems.map((item) => {
@@ -185,10 +254,5 @@ const Sidebar = () => {
               </div>
             );
           })}
-        </div>
-      </div>
-    </aside>
-  );
-};
-
-export default Sidebar;
+        </div> */
+}
