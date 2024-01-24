@@ -7,8 +7,6 @@ import {
   Check,
   ChevronsUpDown,
   ChevronLeft,
-  ChevronUp,
-  ChevronDown,
   ChevronRightCircle,
   Folder,
   LineChart,
@@ -30,7 +28,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-
+import Link from "next/link";
+import { usePathname, useParams } from "next/navigation";
 export const sideItems = [
   {
     label: "Goal",
@@ -45,9 +44,9 @@ export const sideItems = [
     icon: <LineChart size={20} />,
   },
   {
-    label: "Project",
-    value: "project",
-    path: "/project",
+    label: "Projects",
+    value: "projects",
+    path: "/projects",
     icon: <Folder size={20} />,
   },
   {
@@ -59,7 +58,7 @@ export const sideItems = [
   {
     label: "Settings",
     value: "settings",
-    path: "/settings",
+    path: "settings",
     icon: <Settings size={20} />,
   },
 ];
@@ -98,6 +97,13 @@ const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const [workspace, setWorkspace] = useState<IWorkspace | null>(null);
   const [isClient, setIsClient] = useState<boolean>(false);
+
+  const params = useParams();
+  const {workspaceId} = params;
+  const pathname = usePathname();
+  const urlParts = pathname.split("/");
+  const manipulatedString = `/${urlParts[1]}/${workspaceId}/${urlParts[3]}`;
+  console.log(manipulatedString);
 
   useEffect(() => {
     setIsClient(true); // Set isClient to true on the client side
@@ -191,21 +197,25 @@ const Sidebar = () => {
       </div>
       <Separator />
       {workspace && (
-        <div key={workspace._id} className={cn(isCollapsed && 'hidden')}>
+        <div key={workspace._id} className={cn(isCollapsed && "hidden")}>
           {
-            <ul className={cn("flex flex-col space-y-8 px-5 ")}>
+            <div className={cn("flex flex-col space-y-8 px-5 ")}>
               {sideItems.map((item) => {
                 return (
-                  <li
+                  <Link
                     key={item.label}
-                    className="cursor-pointer px-5 flex flex-row items-center gap-x-2 hover:bg-gray-200 p-2 hover:rounded-md"
+                    href={`/workspace/${workspaceId}/${item.path}`}
+                    className={cn(
+                      "cursor-pointer px-5 flex flex-row items-center gap-x-2 hover:bg-gray-200 p-2 hover:rounded-md",
+                      pathname === item.path && "bg-primary"
+                    )}
                   >
                     {item.icon}
                     <p>{item.label}</p>
-                  </li>
+                  </Link>
                 );
               })}
-            </ul>
+            </div>
           }
         </div>
       )}
@@ -214,45 +224,3 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
-
-{
-  /* <div className="px-10 flex flex-col workspace-y-6">
-          {workspaces.map((workspace) => {
-            return (
-              <div key={workspace._id} className="workspace-y-6">
-                <h3
-                  className={cn("font-semibold flex flex-row justify-between")}
-                  onClick={() => handleTabClick(workspace._id)}
-                >
-                  {workspace.workspaceName}
-                  {selectedTabs.includes(workspace._id) ? (
-                    <ChevronDown />
-                  ) : (
-                    <ChevronUp />
-                  )}
-                </h3>
-                {selectedTabs.includes(workspace._id) && (
-                  <ul
-                    className={cn(
-                      "flex flex-col transform transition-all ease-in-out origin-top scale-0",
-                      selectedTabs.includes(workspace._id) && "scale-100"
-                    )}
-                  >
-                    {sideItems.map((item) => {
-                      return (
-                        <li
-                          key={item.label}
-                          className="cursor-pointer px-5 flex flex-row items-center gap-x-2 hover:bg-gray-200 p-2 hover:rounded-md"
-                        >
-                          {item.icon}
-                          <p>{item.label}</p>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </div>
-            );
-          })}
-        </div> */
-}
